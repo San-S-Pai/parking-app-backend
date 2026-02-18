@@ -1,9 +1,14 @@
 import express from "express";
+import {
+  createParking,
+  getAllParkings,
+  getParkingById
+} from "../controllers/parkingController.js";
+
 const router = express.Router();
 
-// Placeholder - we will add real routes later
-router.get("/", (req, res) => {
-    res.json({ message: "Auth route is working!" });
-});
+router.post("/", createParking);
+router.get("/", getAllParkings);
+router.get("/:id", getParkingById);
 
 export default router;

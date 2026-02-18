@@ -1,9 +1,12 @@
 import express from "express";
+import {
+  createSlot,
+  getSlotsByParking
+} from "../controllers/slotController.js";
+
 const router = express.Router();
 
-// Placeholder - we will add real routes later
-router.get("/", (req, res) => {
-    res.json({ message: "Auth route is working!" });
-});
+router.post("/", createSlot);
+router.get("/:parkingId", getSlotsByParking);
 
 export default router;
