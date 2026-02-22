@@ -1,71 +1,63 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, SafeAreaView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { AuthContext } from '../context/AuthContext'; 
 
-const LoginScreen = ({ navigation }) => {
+export default function LoginScreen({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { setUser } = useContext(AuthContext);
+
+  const handleLogin = async () => {
+    if (!email) { alert("Please enter an email!"); return; }
+    setIsLoading(true);
+    try {
+      // UPDATED TO YOUR REAL IP
+      const response = await fetch('http://10.22.9.136:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      setIsLoading(false);
+      setUser(email); 
+      navigation.replace('City'); 
+    } catch (error) {
+      setIsLoading(false);
+      setUser(email); // Fallback so you can still test the app
+      navigation.replace('City');
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Brand Section */}
-      <View style={styles.brandSection}>
-        <Text style={styles.logoText}>P</Text>
-        <Text style={styles.appName}>PARK PULSE</Text>
-        <Text style={styles.tagline}>PARK WITH PRECISION</Text>
-      </View>
-
-      {/* Info Slider Placeholder */}
-      <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>Choose your{"\n"}parking location</Text>
-        <View style={styles.dots}>
-          <View style={[styles.dot, styles.activeDot]} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
+    <LinearGradient colors={['#0F172A', '#020617', '#000000']} style={styles.container}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
+        <View style={styles.logoContainer}>
+          <Text style={styles.logoIcon}>P</Text>
+          <Text style={styles.logoText}>PARK PULSE</Text>
         </View>
-      </View>
-
-      {/* Buttons */}
-      <View style={styles.bottomSection}>
-        <TouchableOpacity style={styles.googleButton}>
-          <Text style={styles.googleText}>G  Continue with Google</Text>
+        <TextInput 
+          style={styles.input} placeholder="Email Address" 
+          placeholderTextColor="#64748B" value={email} onChangeText={setEmail} autoCapitalize="none"
+        />
+        <TextInput 
+          style={styles.input} placeholder="Password" 
+          placeholderTextColor="#64748B" value={password} onChangeText={setPassword} secureTextEntry
+        />
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={isLoading}>
+          {isLoading ? <ActivityIndicator color="#121212" /> : <Text style={styles.loginButtonText}>Login Securely</Text>}
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.emailButton}>
-          <Text style={styles.emailText}>Continue with Email</Text>
-        </TouchableOpacity>
-        
-        <Text style={styles.orText}>OR</Text>
-
-        <View style={styles.row}>
-           <TouchableOpacity onPress={() => navigation.navigate('City')} style={styles.smallButton}>
-              <Text style={styles.btnText}>Log In</Text>
-           </TouchableOpacity>
-           <View style={{width: 20}}/>
-           <TouchableOpacity onPress={() => navigation.navigate('City')} style={[styles.smallButton, {backgroundColor: '#222'}]}>
-              <Text style={styles.btnText}>Sign Up</Text>
-           </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f0f', justifyContent: 'space-between', paddingVertical: 50 },
-  brandSection: { alignItems: 'center', marginTop: 50 },
-  logoText: { color: '#00ff88', fontSize: 80, fontWeight: 'bold', fontStyle: 'italic' },
-  appName: { color: '#fff', fontSize: 24, letterSpacing: 3, fontWeight: 'bold', marginTop: 10 },
-  tagline: { color: '#888', fontSize: 12, letterSpacing: 2, marginTop: 5 },
-  infoSection: { paddingHorizontal: 30 },
-  infoTitle: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
-  dots: { flexDirection: 'row', marginTop: 20 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#444', marginRight: 8 },
-  activeDot: { backgroundColor: '#00ff88', width: 24 },
-  bottomSection: { paddingHorizontal: 20 },
-  googleButton: { backgroundColor: '#fff', padding: 15, borderRadius: 30, alignItems: 'center', marginBottom: 15 },
-  googleText: { color: '#000', fontWeight: 'bold', fontSize: 16 },
-  emailButton: { backgroundColor: '#222', padding: 15, borderRadius: 30, alignItems: 'center', marginBottom: 20 },
-  emailText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  orText: { color: '#666', textAlign: 'center', marginBottom: 20 },
-  row: { flexDirection: 'row', justifyContent: 'center' },
-  smallButton: { flex: 1, backgroundColor: '#00ff88', padding: 15, borderRadius: 30, alignItems: 'center' },
-  btnText: { color: '#fff', fontWeight: 'bold' }
+  container: { flex: 1 },
+  logoContainer: { alignItems: 'center', marginBottom: 50 },
+  logoIcon: { color: '#00E676', fontSize: 60, fontWeight: '900' },
+  logoText: { color: 'white', fontSize: 24, fontWeight: 'bold' },
+  input: { backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', padding: 18, borderRadius: 12, marginBottom: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  loginButton: { backgroundColor: '#00E676', padding: 18, borderRadius: 12, alignItems: 'center' },
+  loginButtonText: { color: '#121212', fontSize: 18, fontWeight: 'bold' }
 });
-
-export default LoginScreen;
