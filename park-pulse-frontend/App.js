@@ -1,32 +1,72 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-// Import Screens
-import BookingScreen from './src/screens/BookingScreen';
-import CityScreen from './src/screens/CityScreen';
-import HomeScreen from './src/screens/HomeScreen';
+// --- THE GLOBAL BRAIN ---
+import { AuthProvider } from './src/context/AuthContext';
+
+// Screens
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
-import MallsScreen from './src/screens/MallsScreen';
+import CityScreen from './src/screens/CityScreen';
+import BookingScreen from './src/screens/BookingScreen';
 import PaymentScreen from './src/screens/PaymentScreen';
 import TicketScreen from './src/screens/TicketScreen';
+import TabNavigator from './src/navigation/TabNavigator'; 
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen name="City" component={CityScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Malls" component={MallsScreen} />
-        <Stack.Screen name="Booking" component={BookingScreen} />
-        <Stack.Screen name="Payment" component={PaymentScreen} />
-        <Stack.Screen name="Ticket" component={TicketScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <Stack.Navigator 
+          initialRouteName="Login" 
+          screenOptions={{ 
+            headerShown: false,
+            // --- GLOBAL ANIMATION RULES ---
+            animation: 'slide_from_right', // Default: Smooth horizontal slide like iOS
+            gestureEnabled: true,          // Allows users to swipe from the left edge to go back!
+            gestureDirection: 'horizontal'
+          }}
+        >
+          
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          
+          {/* Fades in gently after a successful login */}
+          <Stack.Screen 
+            name="City" 
+            component={CityScreen} 
+            options={{ animation: 'fade' }} 
+          />
+          
+          {/* Fades into the main dashboard */}
+          <Stack.Screen 
+            name="Home" 
+            component={TabNavigator} 
+            options={{ animation: 'fade' }} 
+          />
+          
+          {/* Booking inherits the global 'slide_from_right' automatically */}
+          <Stack.Screen name="Booking" component={BookingScreen} />
+          
+          {/* Payment slides up from the bottom like a premium native modal */}
+          <Stack.Screen 
+            name="Payment" 
+            component={PaymentScreen} 
+            options={{ animation: 'slide_from_bottom' }} 
+          />
+          
+          {/* The final ticket elegantly materializes from the bottom */}
+          <Stack.Screen 
+            name="Ticket" 
+            component={TicketScreen} 
+            options={{ animation: 'fade_from_bottom' }} 
+          />
+
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
